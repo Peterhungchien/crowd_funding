@@ -1,3 +1,6 @@
+# To run this program, you should have a valid PostgreSQL connection and a text file containing the
+# connection string in this directory. And you can modify the database column names in this file to
+# to fit your needs.
 using LibPQ
 using DataFrames
 using DataFramesMeta
