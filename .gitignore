@@ -1,0 +1,6 @@
+.vscode/
+pyproject.toml
+poetry.lock
+__pycache__/
+connection_string.txt
+*.sql
