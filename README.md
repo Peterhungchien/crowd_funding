@@ -10,3 +10,6 @@ In a reward-based crowdfunding campaign, backers donate to a project they intere
 The uncertainty that the final return of a pledge depends on the total amount of money raised by a project engenders numerous intriguing questions: Does a higher goal contribute to a greater chance of success? Does more stretch goals necessarily attract more potential buyers? And the observed phenomena such as an "all or nothing" outcome are also worth investigating. 
 
 The data used are scraped from [Modian](https://www.modian.com/), a Chinese analogue of Kickstarter but with a smaller size. This website lacks web scraping protection and has more detailed information concerning the backers of each project, thus is more suitable for web scraping.
+
+## Datasets and Attributes
+The detailed information of the five tables in my database is in `create_tables.sql`. You can use it to create the tables in your database.
