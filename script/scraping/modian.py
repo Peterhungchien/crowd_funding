@@ -560,7 +560,7 @@ class ModianScraper:
                 start_time = time_code[0]
                 end_time = time_code[1]
 
-                return {"pro_id": pro_id,
+                return {"project_id": pro_id,
                         "backer_money": 0,
                         "backer_num": 0,
                         "update_num": 0,
@@ -575,7 +575,7 @@ class ModianScraper:
                         }
             except:
                 print(f"{pro_id} bad html!")
-                return {"pro_id": pro_id}
+                return {"project_id": pro_id}
 
 
 if __name__ == "__main__":
