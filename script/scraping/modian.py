@@ -461,7 +461,7 @@ class ModianScraper:
             comment = int(comment)
 
             return {"goal": goal_money,
-                    "backer_money": backer_money,
+                    "pledged": backer_money,
                     "backer_num": backer_count,
                     "reward_info": reward_info,
                     "start_time": start_time,
@@ -561,7 +561,7 @@ class ModianScraper:
                 end_time = time_code[1]
 
                 return {"project_id": pro_id,
-                        "backer_money": 0,
+                        "pledged": 0,
                         "backer_num": 0,
                         "update_num": 0,
                         "category": pro_class,

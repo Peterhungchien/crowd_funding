@@ -40,7 +40,7 @@ function main()
         """
         SELECT project_id 
         FROM main_info a
-        WHERE a.scraped_time = (SELECT MAX(scraped_time) FROM main_info)
+        WHERE a.scraped_time = (SELECT MAX(scraped_time) FROM main_info) AND status
         """)
         DataFrame(_)
         _[!,:project_id]
@@ -49,11 +49,11 @@ function main()
     prev_project_backer_pair = @chain begin
         execute(conn,
         """
-        SELECT project_id, id
+        SELECT project_id, backer_id
         FROM backers
         """)
         DataFrame(_)
-        zip(_[:,:project_id],_[:,:id])
+        zip(_[:,:project_id],_[:,:backer_id])
         collect(_)
     end
     # scrape the ids of currently activate projects
@@ -92,14 +92,14 @@ function main()
     end
     backer_df = @chain begin
         vcat(DataFrame.(backer_each_project)...)
-        @select(:id=:uid,:support_num=:pro_supported,:project_id)
+        @select(:backer_id=:uid,:support_num=:pro_supported,:project_id)
     end
 
     # write the scraped data into database
     backers_to_write = @chain begin
         backer_df
-        @rsubset(_,!((:project_id,:id) in prev_project_backer_pair))
-        @select(_,:id,:project_id,:support_num)
+        @rsubset(_,!((:project_id,:backer_id) in prev_project_backer_pair))
+        @select(_,:backer_id,:project_id,:support_num)
     end
 
     # add project_id key to each dict in this vector
@@ -115,24 +115,24 @@ function main()
     main_info_to_write = @chain begin
         main_info_reward_excluded
         add_scraped_time(_,scraped_time)
-        @select(:project_id,:goal,:backer_money,:backer_num,
+        @select(:project_id,:goal,:pledged,:backer_num,
         :status,:end_time,:update_num,:attention,
         :comment_num,:scraped_time)
     end
     rewards_to_write = add_scraped_time(reward_info,scraped_time)
     projects_to_write = @chain begin
         main_info_reward_excluded
-        @select(_,:id=:project_id,:category,:start_time,:creator_id)
-        @rsubset(_,:id in project_id_to_add)
+        @select(_,:project_id,:category,:start_time,:creator_id)
+        @rsubset(_,:project_id in project_id_to_add)
     end
 
     # write into database
     write_db(projects_to_write,conn=conn,tbl_name="projects",
-    no_nulls=[:id])
+    no_nulls=[:project_id])
     write_db(main_info_to_write,conn=conn,tbl_name="main_info",
     no_nulls=[:project_id])
     write_db(backers_to_write,conn=conn,tbl_name="backers",
-    no_nulls=[:id,:project_id])
+    no_nulls=[:backer_id,:project_id])
     write_db(front_page_to_write,conn=conn,tbl_name="front_page",
     no_nulls=[:project_id,:scraped_time])
     write_db(rewards_to_write,conn=conn,tbl_name="rewards",
