@@ -39,15 +39,15 @@ CREATE TABLE main_info(
 );
 
 -- This table lists the backers supporting a project at a certain time and the total number of
--- project each backer has invested into.
+-- project each backer had invested into.
 -- backer_id: the id of the backer.
--- support_num: the number of projects the backer had supported when this "project-backer" pair
--- was first detected.
+-- support_num: the number of projects the backer had supported at the scraped time.
 
 CREATE TABLE backers(
     backer_id VARCHAR(20) NOT NULL,
     project_id VARCHAR(10) NOT NULL,
-    support_num INT
+    support_num INT,
+    scraped_time TIMESTAMP
 );
 
 -- This table records which projects were listed on the front page of the website 

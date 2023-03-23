@@ -45,17 +45,6 @@ function main()
         DataFrame(_)
         _[!,:project_id]
     end
-    # get the project-backer pairs that have already been scraped.
-    prev_project_backer_pair = @chain begin
-        execute(conn,
-        """
-        SELECT project_id, backer_id
-        FROM backers
-        """)
-        DataFrame(_)
-        zip(_[:,:project_id],_[:,:backer_id])
-        collect(_)
-    end
     # scrape the ids of currently activate projects
     py"""
     import sys
@@ -96,11 +85,6 @@ function main()
     end
 
     # write the scraped data into database
-    backers_to_write = @chain begin
-        backer_df
-        @rsubset(_,!((:project_id,:backer_id) in prev_project_backer_pair))
-        @select(_,:backer_id,:project_id,:support_num)
-    end
 
     # add project_id key to each dict in this vector
     # add scraped_time column to create the final df's to write
@@ -124,6 +108,12 @@ function main()
         main_info_reward_excluded
         @select(_,:project_id,:category,:start_time,:creator_id)
         @rsubset(_,:project_id in project_id_to_add)
+    end
+
+    backers_to_write = @chain begin
+        backer_df
+        @select(_,:backer_id,:project_id,:support_num)
+        add_scraped_time(_,scraped_time)
     end
 
     # write into database
