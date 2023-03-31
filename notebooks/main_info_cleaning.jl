@@ -50,6 +50,9 @@ md"""
 There are seven rows containing missing values due to some technical issues. We delete them.
 """
 
+# ╔═╡ a9119520-1baf-460a-8aa4-f5eb6ac7ef4c
+dropmissing!(main_info_df)
+
 # ╔═╡ 7e78e321-5d77-4863-8fa1-b5a9091ee1a7
 md"""
 ## Change column types
@@ -68,7 +71,6 @@ Convert the types of columns
 
 # ╔═╡ db942e3d-143a-472b-b025-ac20a60bcca3
 @chain main_info_df begin
-	dropmissing!(_)
 	transform!(_,
 	[:start_time,:end_time,:scraped_time].=>ByRow(parse_datetime)
 	.=>[:start_time,:end_time,:scraped_time],
@@ -205,8 +207,8 @@ outcome = @chain main_info_df begin
 	sort(_,:scraped_time)
 	groupby(_,:project_id)
 	combine(_,
-	Not([:start_time,:end_time,:scraped_time,:elapsed,:diff_pledged]).=>last
-	.=>Not([:start_time,:end_time,:scraped_time,:elapsed,:diff_pledged]))
+	Not([:scraped_time,:elapsed,:diff_pledged]).=>last
+	.=>Not([:scraped_time,:elapsed,:diff_pledged]))
 	subset(_,:status=>ByRow(!)) # For some projects, the snapshot of its end was not captured.
 	select(_,Not(:status))
 end
@@ -1701,6 +1703,7 @@ version = "3.5.0+0"
 # ╠═0a9b90ec-9ed7-429e-baae-ecb567f428d6
 # ╠═10710f03-97d4-4ec9-a3fe-41a3dfcacf85
 # ╠═705862a7-f244-48c2-a293-610f13afa172
+# ╠═a9119520-1baf-460a-8aa4-f5eb6ac7ef4c
 # ╠═7e78e321-5d77-4863-8fa1-b5a9091ee1a7
 # ╠═a36bdae2-1b2b-4af1-92fe-9745a0be884a
 # ╟─b0419049-5c22-460b-a27b-ba1c7cf93be7
