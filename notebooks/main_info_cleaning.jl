@@ -14,8 +14,6 @@ end
 begin
 	using DataFrames
 	using DataFramesMeta
-	using CairoMakie
-	using AlgebraOfGraphics
 	using CSV
 	using Dates
 	using TimeZones

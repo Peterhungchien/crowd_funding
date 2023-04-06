@@ -25,9 +25,13 @@ function write_db(df::DataFrame;conn::LibPQ.Connection,tbl_name::AbstractString,
     execute(conn,copyin)
 end
 
+function write_log(message::AbstractString,time)
+    open("$(@__DIR__)/log.txt","a") do f
+        write(f,message," at ",string(time))
+    end
+end
 
-
-function main()
+function scrape_and_write()
     scraped_time = now()
     println("Scraping job started at $scraped_time")
     connection_string = read(open("script/scraping/connection_string.txt"),String)
@@ -129,6 +133,34 @@ function main()
     no_nulls=[:project_id,:reward_title,:scraped_time])
     println("Scraping job succeeded at $scraped_time")
 end
+
+function execute_until_success(f::Function, max_retry::Int)
+    failures = 0
+
+    time_now = now()
+    write_log("Function started",time_now)
+
+    while failures < max_retry
+        time_now = now()
+        try
+            result = f()
+            write_log("Function executed successfully!",time_now)
+            return result
+        catch e
+            failures += 1
+            write_log("Function failed with error: $e. Attempt $(failures)/$(max_retry).",time_now)
+        end
+    end
+
+    time_now = now()
+    write_log("Function failed after $(max_retry) attempts.",time_now)
+    return nothing
+end
+
+function main()
+    execute_until_success(scrape_and_write,5)
+end
+
 
 if abspath(PROGRAM_FILE) == @__FILE__
     main()
