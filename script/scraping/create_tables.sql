@@ -44,7 +44,7 @@ CREATE TABLE main_info(
 -- support_num: the number of projects the backer had supported at the scraped time.
 
 CREATE TABLE backers(
-    backer_id VARCHAR(20) NOT NULL,
+    backer_id VARCHAR(20),
     project_id VARCHAR(10) NOT NULL,
     support_num INT,
     scraped_time TIMESTAMP
@@ -68,7 +68,7 @@ CREATE TABLE front_page(
 
 CREATE TABLE rewards(
     project_id VARCHAR(20) NOT NULL,
-    reward_title VARCHAR(100) NOT NULL,
+    reward_title VARCHAR(100),
     price NUMERIC,
     quantity INT,
     quantity_limit INT ,

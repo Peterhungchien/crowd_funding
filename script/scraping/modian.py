@@ -6,7 +6,6 @@ import hashlib
 from bs4 import BeautifulSoup
 from requests.adapters import HTTPAdapter, Retry
 
-
 class ModianScraper:
 
     def __init__(self):
@@ -575,7 +574,18 @@ class ModianScraper:
                         }
             except:
                 print(f"{pro_id} bad html!")
-                return {"project_id": pro_id}
+                return {"project_id": pro_id,
+                        "category": None,
+                        "goal": None,
+                        "pledged": None,
+                        "backer_num": None,
+                        "start_time": None,
+                        "end_time": None,
+                        "creator_id": None,
+                        "comment_num": None,
+                        "attention": None,
+                        "reward_info": [(None,None,None,None)],
+                        "update_num": None}
 
 
 if __name__ == "__main__":

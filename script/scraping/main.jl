@@ -21,13 +21,14 @@ function write_db(df::DataFrame;conn::LibPQ.Connection,tbl_name::AbstractString,
         row_string
     end
 
-    copyin = LibPQ.CopyIn("COPY $tbl_name FROM STDIN (FORMAT CSV);", row_strings)
+    copyin = LibPQ.CopyIn("COPY $tbl_name FROM STDIN WITH (FORMAT CSV, NULL \"nothing\");",
+    row_strings)
     execute(conn,copyin)
 end
 
 function write_log(message::AbstractString,time)
     open("$(@__DIR__)/log.txt","a") do f
-        write(f,message," at ",string(time))
+        write(f,message," at ",string(time),"\n")
     end
 end
 
@@ -47,7 +48,17 @@ function scrape_and_write()
         WHERE a.scraped_time = (SELECT MAX(scraped_time) FROM main_info) AND status
         """)
         DataFrame(_)
-        _[!,:project_id]
+        _[:,:project_id]
+    end
+    # get all the project ids'
+    all_project_id = @chain begin
+        execute(conn,
+        """
+        SELECT project_id
+        FROM projects
+        """)
+        DataFrame(_)
+        _[:,:project_id]
     end
     # scrape the ids of currently activate projects
     py"""
@@ -57,8 +68,8 @@ function scrape_and_write()
     md = pyimport("modian")
     scraper = md.ModianScraper()
     active_project_id = scraper.get_active_pro()
-    project_id_to_add = setdiff(Set(active_project_id),Set(prev_project_id)) |> collect
-    project_to_scrape = vcat(prev_project_id,active_project_id)
+    project_id_to_add = setdiff(Set(active_project_id),Set(all_project_id)) |> collect
+    project_to_scrape = vcat(prev_project_id,active_project_id) |> unique
     # scrape the main information of each project (including detailed reward information)
     main_info_vec = [scraper.get_main_info(pro) for pro in project_to_scrape]
     main_info_df = vcat(DataFrame.(main_info_vec)...)
@@ -126,11 +137,11 @@ function scrape_and_write()
     write_db(main_info_to_write,conn=conn,tbl_name="main_info",
     no_nulls=[:project_id])
     write_db(backers_to_write,conn=conn,tbl_name="backers",
-    no_nulls=[:backer_id,:project_id])
+    no_nulls=[:project_id])
     write_db(front_page_to_write,conn=conn,tbl_name="front_page",
     no_nulls=[:project_id,:scraped_time])
     write_db(rewards_to_write,conn=conn,tbl_name="rewards",
-    no_nulls=[:project_id,:reward_title,:scraped_time])
+    no_nulls=[:project_id,:scraped_time])
     println("Scraping job succeeded at $scraped_time")
 end
 
@@ -141,13 +152,14 @@ function execute_until_success(f::Function, max_retry::Int)
     write_log("Function started",time_now)
 
     while failures < max_retry
-        time_now = now()
         try
             result = f()
+            time_now = now()
             write_log("Function executed successfully!",time_now)
             return result
         catch e
             failures += 1
+            time_now = now()
             write_log("Function failed with error: $e. Attempt $(failures)/$(max_retry).",time_now)
         end
     end
