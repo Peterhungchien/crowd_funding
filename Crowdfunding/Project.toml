@@ -1,0 +1,14 @@
+name = "Crowdfunding"
+uuid = "e4c4962f-8643-49fb-b7f4-ba912cf2277c"
+authors = ["hungchien <hungchienpeter@gmail.com> and contributors"]
+version = "1.0.0-DEV"
+
+[deps]
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+Interpolations = "a98d9a8b-a2ab-59e6-89dd-64a1c18fca59"
+StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
+TimeZones = "f269a46b-ccf7-5d73-abea-4c690281aa53"
+
+[compat]
+julia = "1"
