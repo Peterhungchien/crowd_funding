@@ -6,3 +6,9 @@ connection_string.txt
 *.sql
 !script/scraping/create_tables.sql
 *.csv
+*.jld2
+*.pdf
+Manifest.toml
+theory/Version_0_1_0/*
+!theory/Version_0_1_0/Version_0_1_0.tex
+!theory/Version_0_1_0/Version_0_1_0.pdf
