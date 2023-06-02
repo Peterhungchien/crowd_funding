@@ -13,3 +13,15 @@ The data used are scraped from [Modian](https://www.modian.com/), a Chinese anal
 
 ## Datasets and Attributes
 The detailed information of the five tables in my database is in `create_tables.sql`. You can use it to create the tables in your database.
+
+## Model 0.1.0
+I first attempted to build a one-period crowdfunding game where the total number and
+the distribution of potential backers are known, and solved a separating equilibrium
+in which all consumers have valuation higher than the price, but some choose not
+to back due to uncertainty. The model specification is in `theory/Version_0_1_0/Version_0_1_0.tex`
+and the simulation result is `script/theory/simu_version_0_1_0.html`.
+
+## Next Step
+1. Do some EDA to see if there is any interesting pattern.
+2. Learn from literature (especially [this](https://cowles.yale.edu/research/cfdp-2149r-aiming-goal-contribution-dynamics-crowdfunding)).
+3. Resort to my professor for suggestions.
