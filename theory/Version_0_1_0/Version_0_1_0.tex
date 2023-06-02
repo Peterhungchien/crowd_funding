@@ -1,0 +1,247 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{bbm}
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage{float}
+\title{A One-Period Crowdfunding Model}
+\begin{document}
+\maketitle
+Suppose a startup designs a new product, yet
+its limited cash flow or a high fixed cost precludes
+it from manufacturing the goods. Hence it initiates
+a crowdfunding campaign, by which it collects
+money from customers first and then produce the goods.
+There are several essential features of a reward-based
+crowdfunding campaign:
+\begin{itemize}
+    \item If one decides to back the project, she pays the
+    price immediately. 
+    \item The campaign lasts for a time period and the
+    production also takes time. Therefore the value
+    of the reward is discounted and backing a project
+    involves liquidity cost.
+    \item The project may fail to reach its goal. In this
+    case, no reward is given and the money is refunded.
+    Hence the failure of a campaign does not incur
+    any monetary cost for the backers.
+\end{itemize}
+
+A natural question one may ask is how can a producer st the price
+and the goal to raise as much money as possible. To answer
+this question, let us first consider a toy model of
+one-period crowdfunding.
+
+\section{Model Setting}
+There are $N$ consumers and one firm in the market. The firm
+has constant marginal cost $c$ and fixed cost $F$ if it decides
+to produce goods. A consumer $i$'s valuation of the good $V_i$ is random,
+which has probability $q$ to be $\overline{v}$ and $1-q$ to be $\underline{v}$.
+We assume $\overline{v} > \underline{v} > c > 0$.
+
+The firm first chooses price $p$ and goal $G$ to initiate a
+crowdfunding campaign. Consumers then choose whether to back.
+We denote the number of backers by $N_B$.
+If a consumer chooses to quit (denoted by $Q$), she incurs no cost.
+If she chooses to back (denoted by $B$), she is bound to incurs
+a liquidity cost $\underline{L} < \underline{v}$ and
+gain $V_i - p$ if $N_B p \geq G$ and $0$ otherwise.
+\section{Solving the Model}
+We first solve the distribution of demand given a price
+$p$ and a goal $G$, and then solve the firm's optimization
+problem.
+
+Notice that $N_B p \geq G$ is equivalent to
+$N_B \geq ceil(\frac{G}{p}) $. Hence for convenience
+we denote $ceil(\frac{G}{p})$ by $\underline{N}$, the
+minimum number of backers needed to reach the goal.
+Obviously, choosing $G$ is equivalent to choosing $\underline{N}$.
+
+The consumer's decisions given a campaign is essentially a
+Bayesian game $ <N,V,(A_i),(T_i),(\tau_i),(P_i),(u_i)> $,
+where $V = \times_{i \in N} \{\overline{v},\underline{v}\} $,
+$A_i = \{B,Q\}$, $T_i = \{\overline{v},\underline{v}\}$,
+$\tau_i(V) = V_i$, $P_i = P_j = P$, the product measure
+over $V$ with $P(V_i = \overline{v}) = q$. And the utility
+function is:
+\begin{equation}
+    u_i(a,V) = \begin{cases}
+        (V_i - p)\mathbbm{1}_{\sum_{j \in N} \mathbbm{1}_{a_j = B} \geq \underline{N}} - L & \text{if } a_i = B \\
+        0 & \text{if } a_i = Q
+    \end{cases}
+\end{equation}
+
+We first consider the case when $\underline{v} - p > L$, that is,
+every consumer would back the project if the reward is guaranteed.
+
+Two equilibria are salient:
+$a_i \equiv B \quad \forall i$ or $a_i \equiv Q \quad \forall i$
+
+These results are not interesting and are unlikely to happen in reality:
+At least some people back a project and there are consumers complaining
+that the uncertainty of the campaign prevents them from
+backing it even if they are fond of the good.
+
+Intuition suggests the following separating equilibrium:
+\begin{equation}
+    a_i = \begin{cases}
+        B & \text{if } V_i = \overline{v} \\
+        Q & \text{if } V_i = \underline{v}
+    \end{cases}
+\end{equation}
+This means that consumers with low (not enough) WTP
+quit due to the uncertainty and those with high WTP
+back the project albeit the risk.
+
+The existence of such equilibrium requires:
+\begin{equation}
+    \begin{cases}
+        P(\mathbbm{1}_{\sum_{j \in -i} \mathbbm{1}_{V_j = \overline{v}} \geq \underline{N} - 1})
+        (\overline{v}-p) - L \geq 0 \\
+        P(\mathbbm{1}_{\sum_{j \in -i} \mathbbm{1}_{V_j = \overline{v}} \geq \underline{N} - 1})
+        (\underline{v} - p) - L < 0
+    \end{cases}
+\end{equation}
+
+The tricky part is
+$P(\mathbbm{1}_{\sum_{j \in -i} \mathbbm{1}_{V_j = \overline{v}} \geq \underline{N} - 1})$,
+the probability of a random variable following binomial distribution
+greater than or equal to some number. Of course we can expand
+it as a discrete sum. Yet it has a neater representation:
+This probability is equal to the probability of the
+$(\underline{N}-1)$th variable in ascending order of $N-1$ independent
+random variables $X_1, X_2, \dots X_{N-1}$following uniform distribution on $[0,1]$.
+This probability involving ordered statistics can be expressed
+by beta distribution:
+\begin{align*}
+    P(\mathbbm{1}_{\sum_{j \in -i} \mathbbm{1}_{V_j = \overline{v}} \geq \underline{N} - 1})
+    &= P(X_{[\underline{N}-1]} \leq q) \\
+    &= I_q(\underline{N}-1, N - \underline{N} + 1) \\
+    &= \frac{B(q;\underline{N}-1, N - \underline{N} + 1)}{B(\underline{N}-1, N - \underline{N} + 1)}\\
+    &= \frac{\Gamma(N)}{\Gamma(\underline{N}-1)\Gamma(N - \underline{N} + 1)}
+    \int_0^q t^{\underline{N}-2}(1-t)^{N - \underline{N}}dt
+\end{align*}
+The function $I_q(\underline{N}-1, N - \underline{N} + 1)$ is called
+the regularized incomplete beta function. It is the CDF of
+beta distribution.
+
+
+By solving the above inequalities, we get:
+\begin{align}
+    \frac{L}{\overline{v} - p} \leq
+    I_q(\underline{N}-1, N - \underline{N} + 1) <
+    \frac{L}{\underline{v} - p}
+\end{align}
+
+Now back to the firm's optimization problem assuming this
+condition holds. If the firm is maximizing its expected
+profit, it solves:
+\begin{align}
+    \begin{split}
+    \max_{p,\underline{N}} \quad E[\pi] &=
+    E[N_B (p-c) \mathbbm{1}_{N_b \geq \underline{N}} -
+    F\mathbbm{1}_{N_b \geq \underline{N}}] \\
+    &= (p-c)E[N_B \mathbbm{1}_{N_B \geq \underline{N}}] -
+    FE[\mathbbm{1}_{N_B \geq \underline{N}}] \\
+    \end{split}\\
+    s.t. \quad & \frac{L}{\overline{v} - p} \leq
+    I_q(\underline{N}-1, N - \underline{N} + 1) <
+    \frac{L}{\underline{v} - p}\\
+    & where \quad N_B \sim Bin(N,q)
+\end{align}
+
+By previous result,
+\begin{align*}
+    E[\mathbbm{1}_{N_B \geq \underline{N}}] &= P(N_B \geq \underline{N}) \\
+    &= I_q(\underline{N}, N - \underline{N} + 1)
+\end{align*}
+And \begin{align*}
+    &E[N_B \mathbbm{1}_{N_B \geq \underline{N}}]\\
+    & = \sum_{n_b=\overline{N}}^{N} n_B \binom{N}{n_B} q^{n_B} (1-q)^{N-n_B}\\
+    & = Nq \sum_{i=\overline{N}-1}^{N-1} \binom{N-1}{i} q^{i} (1-q)^{N-1-i}\\
+    & = Nq I_q(\underline{N}-1, N - \underline{N} + 1)
+\end{align*}
+
+So \begin{align}
+    E\pi(p,\underline{N}) = Nq(p-c)I_q(\underline{N}-1, N - \underline{N} + 1) - F I_q(\underline{N}, N - \underline{N} + 1)
+\end{align}
+
+Since $\underline{N}$ can only take finite values, we can
+compute the optimal $E\pi$ given each $\underline{N}$ and
+then compare them.
+
+For a fixed $\underline{N}$, $E\pi$ is maximized when
+p takes the greatest possible value, which is
+$\overline{v} - \frac{L}{I_q(\underline{N}-1, N - \underline{N} + 1)}$.
+This yields
+\begin{align}
+    \begin{split}
+    E\pi^*(\underline{N}) 
+    &= Nq(\overline{v} - \frac{L}{I_q(\underline{N}-1, N - \underline{N} + 1)} -c)
+    I_q(\underline{N}-1, N - \underline{N} + 1) \\ 
+    & - F I_q(\underline{N}, N - \underline{N} + 1) \\
+    & = Nq(\overline{v} -c)I_q(\underline{N}-1, N - \underline{N} + 1)
+    - LNq - F I_q(\underline{N}, N - \underline{N} + 1)
+    \end{split}
+\end{align}
+
+Take difference with respect to $\underline{N}$ yields:
+\begin{align}
+    \begin{split}
+    &E\pi^*(\underline{N}+1) - E\pi^*(\underline{N})\\
+    &=Nq(\overline{v}-c)[I_q(\underline{N}, N - \underline{N}) - I_q(\underline{N}-1, N - \underline{N} + 1)]\\
+    & -F[I_q(\underline{N}+1, N - \underline{N}) - I_q(\underline{N}, N - \underline{N} + 1)]
+    \end{split}
+\end{align}
+, for $ 2 \leq \underline{N} \leq N-1 \quad \underline{N} \in \mathbb{N}$
+If this difference is a monotonic function of $\underline{N}$, then
+the optimal level of threshold is the largest $\overline{N}$
+that makes this difference positive.
+
+
+\section{Initial Result}
+However, neither hand computing nor
+symbolic computing software managed to give
+a closed form of this problem, therefore I
+resorted to numeric simulation (\path{simu_version_0_1_0.qmd}).
+With a reasonable set of parameters
+($N=500$, $q=0.7$, $\overline{v}=100$, $c=50$, $F=1000$, $L=10$),
+I got a result that had never been expected:
+I had conjectured that
+$N*q$ might be the optimal level, since this
+is the expected number of high WTP consumers.
+However, as Fig \ref{fig:expectation and variance of profit}
+indicates, if $\underline{N}$ is
+below a certain level, then both the expectation
+and the variance of the firm's profit almost
+remains unchanged! According to my naive
+theory, the project initiator should not
+set a goal at all! This result makes sense,
+though: For any realization of WTP
+distribution, a project with a lower goal
+must attract at least as many consumers as
+a project with a higher goal.
+
+\begin{figure}[H]
+    \label{fig:expectation and variance of profit}
+    \centering
+    \caption{Expectation and Variance of Profit as $\underline{N}$ increases}
+    \includegraphics[width=0.8\textwidth]{fig/expectation_variance_plot.png}
+\end{figure}
+
+Then why does this not happen in reality?
+The most possible reason is that
+the firm not only cares about the
+expected profit, but the minium
+profit as well, since it needs
+backers to cover its fixed cost.
+Plus, firms do not know in practice
+the total number of consumers and
+their preference distribution, thus
+may adopt a `maximin'-like strategy
+to offset this uncertainty.
+
+It seems that I still have a long way to
+go\dots
+\end{document}

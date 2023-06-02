@@ -1,0 +1,129 @@
+---
+title: Simulation of Model Version 0.1.0
+format: ipynb
+---
+
+```{julia}
+using CairoMakie
+using LaTeXStrings
+using Distributions
+```
+
+In the 0.1 Version of my model of crowdfunding campaigns,
+the producer chooses the threshold $\underline{N}$ and the price $p$ to maximize
+$$
+(p-c) E[N_B 1_{N_B \geq \underline{N}}] - F E[1_{N_B \geq \underline{N}}]
+$$
+
+And by computing the optimal price $p$ for each threshold,
+the problem is converted into a unvariate optimization problem
+over finite domain. However, it is almost infeasible to expand
+a expression involving the difference of
+regularized incomplte beta functions and then compute under what
+condition it will be greater than or equal to zero
+and there is no such neat representation when
+computing variance.
+Therefore, I resume to the discrete sum representation to
+proceed the calculation.
+
+More specifically, we compute the expectation of
+$$
+\begin{align}
+(p(\underline{N})-c) N_B 1_{N_B \geq \underline{N}} - F 1_{N_B \geq \underline{N}} \\
+where \quad  p(\underline{N}) = \overline{v} - \frac{L}{I_q(\underline{N}-1, N-\underline{N}+1)}\\
+\end{align}
+$$
+
+We create functions to compute the relevant expecations
+
+```{julia}
+# optimal price given N̲
+beta_cdf(x, α, β) = cdf(Beta(α, β), x)
+p(N̲, N, q, v̅, L) = v̅ - L / beta_cdf(q, N̲ - 1, N - N̲ + 1)
+```
+
+
+```{julia}
+p_Bin_eq(N, p, n) = Float32(factorial(big(N)) / (factorial(big(n)) * factorial(big(N - n))) * p^n * (1-p)^(N-n))
+P_Bin_geq(N, p, n) = sum(x -> p_Bin_eq(N, p, x), n:N)
+E_Bin_geq_times_Bin(N, p, n) = sum(x -> x * p_Bin_eq(N, p, x), n:N)
+E_π(N̲, N, q, v̅, L, c, F) = E_Bin_geq_times_Bin(N, q, N̲) * (p(N̲, N, q, v̅, L) - c) - F * P_Bin_geq(N, q, N̲)
+```
+
+```{julia}
+let
+    N = 500
+    q = 0.7
+    v̅ = 100
+    c = 50
+    F = 1000
+    L = 10
+    fig = Figure()
+    ax = Axis(fig[1,1])
+    lines!(ax,2:N-2,E_π.(2:N-2,N,q,v̅,L,c,F))
+    fig
+end
+```
+
+It seems that at least for this combination of parameters,
+the expetced profit is at the same level for small $\underline{N}$.
+Then how about the variance?
+
+For the intested variables, we have
+$$
+\begin{align}
+    Var(1_{N_B \geq \underline{N}}) = P(N_B \geq \underline{N}) (1 - P(N_B \geq \underline{N}))\\
+    Var(N_B 1_{N_B \geq \underline{N}}) = E[N_B^2 1_{N_B \geq \underline{N}}] -
+    (E[N_B 1_{N_B \geq \underline{N}}])^2 \\
+    Cov(N_B 1_{N_B \geq \underline{N}}, 1_{N_B \geq \underline{N}}) =
+    E[N_B 1_{N_B \geq \underline{N}}] -
+    E[N_B 1_{N_B \geq \underline{N}}] P(N_B \geq \underline{N})
+\end{align}
+$$
+
+and
+$$
+\begin{align}
+& Var(\pi^*(\underline{N})) \\
+=  & (p(\underline{N})-c)^2 Var(N_B 1_{N_B \geq \underline{N}}) + \\
+& F^2 Var(1_{N_B \geq \underline{N}}) - \\
+& 2 (p-c) F Cov(N_B 1_{N_B \geq \underline{N}}, 1_{N_B \geq \underline{N}})
+\end{align}
+$$
+
+```{julia}
+Var_Bin_geq(N, p, n) = P_Bin_geq(N, p, n) * (1- P_Bin_geq(N, p, n))
+E_Bin_geq_times_Bin_square(N, p, n) = sum(x -> x^2 * p_Bin_eq(N, p, x), n:N)
+Var_Bin_geq_times_Bin(N, p, n) = E_Bin_geq_times_Bin_square(N, p, n) - E_Bin_geq_times_Bin(N, p, n)^2
+Cov_Bin_geq_times_Bin_and_Bin_geq(N, p, n) = E_Bin_geq_times_Bin(N, p, n) - E_Bin_geq_times_Bin(N, p, n) * P_Bin_geq(N, p, n)
+```
+
+```{julia}
+Var_π(N̲, N, q, v̅, L, c, F) = (p(N̲, N, q, v̅, L) - c)^2 * Var_Bin_geq_times_Bin(N, q, N̲) + F^2 * Var_Bin_geq(N, q, N̲) - 2 * (p(N̲, N, q, v̅, L) - c) * F * Cov_Bin_geq_times_Bin_and_Bin_geq(N, q, N̲)
+```
+
+```{julia}
+let
+    N = 500
+    q = 0.7
+    v̅ = 100
+    c = 50
+    F = 1000
+    L = 10
+    fig = Figure()
+    ax1 = Axis(fig[1, 1];yticklabelcolor = :black, rightspinevisible = false,
+    ylabel = L"E[\pi]", xlabel="Threshold")
+    ax2 = Axis(fig[1, 1], yaxisposition = :right,
+    yticklabelcolor = :dodgerblue,
+    ylabel = L"Var(\pi)",
+    rightspinecolor = :dodgerblue,
+    ytickcolor = :dodgerblue)
+    x_range = 2:floor(Int64,q*N)
+    lines!(ax1,x_range,E_π.(x_range,N,q,v̅,L,c,F);color=:black)
+    lines!(ax2,x_range,Var_π.(x_range,N,q,v̅,L,c,F);color=:dodgerblue)
+    hidespines!(ax2, :l, :b, :t)
+    hidexdecorations!(ax2)
+    fig
+end
+```
+
