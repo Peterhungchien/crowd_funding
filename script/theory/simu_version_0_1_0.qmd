@@ -1,6 +1,7 @@
 ---
 title: Simulation of Model Version 0.1.0
-format: ipynb
+format: html
+embed-resources: true
 ---
 
 ```{julia}
@@ -11,9 +12,9 @@ using Distributions
 
 In the 0.1 Version of my model of crowdfunding campaigns,
 the producer chooses the threshold $\underline{N}$ and the price $p$ to maximize
-$$
+\begin{align}
 (p-c) E[N_B 1_{N_B \geq \underline{N}}] - F E[1_{N_B \geq \underline{N}}]
-$$
+\end{align}
 
 And by computing the optimal price $p$ for each threshold,
 the problem is converted into a unvariate optimization problem
@@ -72,10 +73,10 @@ Then how about the variance?
 For the intested variables, we have
 $$
 \begin{align}
-    Var(1_{N_B \geq \underline{N}}) = P(N_B \geq \underline{N}) (1 - P(N_B \geq \underline{N}))\\
-    Var(N_B 1_{N_B \geq \underline{N}}) = E[N_B^2 1_{N_B \geq \underline{N}}] -
+    Var(1_{N_B \geq \underline{N}}) & = & P(N_B \geq \underline{N}) (1 - P(N_B \geq \underline{N}))\\
+    Var(N_B 1_{N_B \geq \underline{N}}) & = & E[N_B^2 1_{N_B \geq \underline{N}}] -
     (E[N_B 1_{N_B \geq \underline{N}}])^2 \\
-    Cov(N_B 1_{N_B \geq \underline{N}}, 1_{N_B \geq \underline{N}}) =
+    Cov(N_B 1_{N_B \geq \underline{N}}, 1_{N_B \geq \underline{N}}) & = &
     E[N_B 1_{N_B \geq \underline{N}}] -
     E[N_B 1_{N_B \geq \underline{N}}] P(N_B \geq \underline{N})
 \end{align}
