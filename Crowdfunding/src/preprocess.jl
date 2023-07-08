@@ -1,3 +1,8 @@
+function _convert_with_missing(T::Type,x)
+    return ismissing(x) ? x : convert(T,x)
+end
+
+
 function _pad_forward(vec::AbstractVector)
     new_vec = copy(vec)
     first_nonmissing = findfirst(!ismissing,new_vec)
@@ -149,4 +154,8 @@ function fill_missing(vec::AbstractVector;method=:ffill)
     else
         return ArgumentError("The method argument must be either :ffill or :bfill.")
     end
+end
+
+function nest(gdf::DataFrames.GroupedDataFrame)
+    return combine(gdf,Not(groupcols(gdf)).=> Ref ∘ collect;renamecols=false)
 end
