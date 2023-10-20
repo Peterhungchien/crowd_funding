@@ -2,7 +2,7 @@
 pyproject.toml
 poetry.lock
 __pycache__/
-connection_string.txt
+auth/
 *.sql
 !script/scraping/create_tables.sql
 *.csv
@@ -12,3 +12,8 @@ Manifest.toml
 theory/Version_0_1_0/*
 !theory/Version_0_1_0/Version_0_1_0.tex
 !theory/Version_0_1_0/Version_0_1_0.pdf
+!script/query/view_qualified_projects.sql
+theory/Version_0_2_0/*
+!theory/Version_0_2_0/draft.tex
+!theory/Version_0_2_0/draft.pdf
+script/query/download_db_from_server.ps1
